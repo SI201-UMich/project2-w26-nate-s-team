@@ -58,29 +58,87 @@ def load_listing_results(html_path) -> list[tuple]:
 
 
 def get_listing_details(listing_id) -> dict:
-    """
-    Parse through listing_<id>.html to extract listing details.
-
-    Args:
-        listing_id (str): The listing id of the Airbnb listing
-
-    Returns:
-        dict: Nested dictionary in the format:
-        {
-            "<listing_id>": {
-                "policy_number": str,
-                "host_type": str,
-                "host_name": str,
-                "room_type": str,
-                "location_rating": float
-            }
-        }
-    """
     # TODO: Implement checkout logic following the instructions
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    file_path = os.path.join(base_dir, "html_files", f"listing_{listing_id}.html")
+
+    with open(file_path, "r", encoding="utf-8-sig") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+
+    policy_number = ""
+    for li in soup.find_all("li", class_="f19phm7j"):
+        text = li.get_text()
+        if "Policy" in text or "License" in text:
+            span = li.find("span", class_="ll4r2nl")
+            if span:
+                raw = span.get_text().strip().replace("\ufeff", "")
+            else:
+                raw = text.replace("Policy number:", "").replace("License number:", "").strip()
+
+            lower = raw.lower()
+            if "pending" in lower:
+                policy_number = "Pending"
+            elif "exempt" in lower:
+                policy_number = "Exempt"
+            else:
+                policy_number = raw
+            break
+
+    superhost_tag = soup.find(string=lambda t: t and t.strip() == "Superhost")
+    host_type = "Superhost" if superhost_tag else "regular"
+
+    host_name = ""
+    for h2 in soup.find_all("h2"):
+        txt = h2.get_text().replace("\xa0", " ")
+        match = re.search(r"[Hh]osted by\s+(.+)", txt)
+        if match:
+            host_name = match.group(1).strip()
+            break
+
+    room_type = "Entire Room"
+    subtitle = ""
+    for h2 in soup.find_all("h2"):
+        txt = h2.get_text().replace("\xa0", " ")
+        if "hosted by" in txt.lower():
+            subtitle = txt
+            break
+
+    if "Private" in subtitle:
+        room_type = "Private Room"
+    elif "Shared" in subtitle:
+        room_type = "Shared Room"
+    else:
+        kh_div = soup.find("div", class_="_kh3xmo")
+        if kh_div:
+            kh_text = kh_div.get_text()
+            if "Private" in kh_text:
+                room_type = "Private Room"
+            elif "Shared" in kh_text:
+                room_type = "Shared Room"
+            else:
+                room_type = "Entire Room"
+
+    location_rating = 0.0
+    loc_div = soup.find("div", class_="_y1ba89", string="Location")
+    if loc_div:
+        parent = loc_div.parent
+        full_text = parent.get_text().replace("Location", "").strip()
+        rating_match = re.search(r"(\d+\.?\d*)", full_text)
+        if rating_match:
+            location_rating = float(rating_match.group(1))
+
+    return {
+        listing_id: {
+            "policy_number": policy_number,
+            "host_type": host_type,
+            "host_name": host_name,
+            "room_type": room_type,
+            "location_rating": location_rating,
+        }
+    }
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
