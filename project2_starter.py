@@ -17,7 +17,7 @@ import re
 import os
 import csv
 import unittest
-import requests  # kept for extra credit parity
+#import requests  # kept for extra credit parity
 
 
 # IMPORTANT NOTE:
@@ -159,7 +159,24 @@ def create_listing_database(html_path) -> list[tuple]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    listings = load_listing_results(html_path)
+    database = []
+
+    for listing_title, listing_id in listings:
+        details = get_listing_details(listing_id)
+        info = details[listing_id]
+        entry = (
+            listing_title,
+            listing_id,
+            info["policy_number"],
+            info["host_type"],
+            info["host_name"],
+            info["room_type"],
+            info["location_rating"],
+        )
+        database.append(entry)
+
+    return database
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
