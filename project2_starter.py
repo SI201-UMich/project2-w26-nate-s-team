@@ -1,14 +1,13 @@
 # SI 201 HW4 (Library Checkout System)
-# Your name:
-# Your student id:
-# Your email:
-# Who or what you worked with on this homework (including generative AI like ChatGPT):
+# Your name: Nathaniel Mitelman, Brandon Wivietsky, Coby Kalimian
+# Your student id: Brandon: 3847 2237, Nathaniel: 1492 6180, Coby: 4950 5044
+# Your email: Mitelman@umich.edu, Cobykali@umich.edu, Bwivie@umich.edu
+# Who or what you worked with on this homework (including generative AI like ChatGPT): ChatGPT
 # If you worked with generative AI also add a statement for how you used it.
-# e.g.:
-# Asked ChatGPT for hints on debugging and for suggestions on overall code structure
+# Used ChatGPT to help understand the HTML structure of the Airbnb pages and to get guidance on which BeautifulSoup methods to use for extracting specific elements.
 #
 # Did your use of GenAI on this assignment align with your goals and guidelines in your Gen AI contract? If not, why?
-#
+# Yes, it aligned with out goals.
 # --- ARGUMENTS & EXPECTED RETURN VALUES PROVIDED --- #
 # --- SEE INSTRUCTIONS FOR FULL DETAILS ON METHOD IMPLEMENTATION --- #
 
@@ -279,7 +278,21 @@ def google_scholar_searcher(query):
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    url = "https://scholar.google.com/scholar"
+    params = {"q": query}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    titles = []
+    for result in soup.find_all("h3", class_="gs_rt"):
+        title_text = result.get_text().strip()
+        titles.append(title_text)
+
+    return titles
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
