@@ -279,7 +279,24 @@ def validate_policy_numbers(data) -> list[str]:
     # ==============================
     # YOUR CODE STARTS HERE
     # ==============================
-    pass
+    invalid = []
+
+    pattern1 = r"^20\d{2}-00\d{4}STR$"
+    pattern2 = r"^STR-000\d{4}$"
+
+    for entry in data:
+        listing_id = entry[1]
+        policy_number = entry[2]
+
+        if policy_number in ("Pending", "Exempt"):
+            continue
+
+        if not re.match(pattern1, policy_number) and not re.match(
+            pattern2, policy_number
+        ):
+            invalid.append(listing_id)
+
+    return invalid
     # ==============================
     # YOUR CODE ENDS HERE
     # ==============================
