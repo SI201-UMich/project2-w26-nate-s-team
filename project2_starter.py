@@ -16,7 +16,7 @@ import re
 import os
 import csv
 import unittest
-#import requests  # kept for extra credit parity
+import requests  # kept for extra credit parity
 
 
 # IMPORTANT NOTE:
